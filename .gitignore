@@ -1,0 +1,29 @@
+# 依赖
+node_modules/
+.pnpm-store/
+
+# 构建产物
+dist/
+out/
+release/
+*.log
+
+# 本机数据库与用户数据（真实项目、备份、书库都不该进仓库）
+*.db
+*.db-wal
+*.db-shm
+workspace/
+recovered/
+
+# 一次性探针脚本（历史上散在 dist/ 与根目录）
+tmp-*.js
+tmp-*.py
+t-*.js
+probe-*.js
+*-probe.js
+.dsh-write-test
+
+# 系统垃圾
+.DS_Store
+Thumbs.db
+desktop.ini

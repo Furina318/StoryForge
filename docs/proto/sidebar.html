@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<title>左侧栏改造方案预览 · StoryForge</title>
+<style>
+  :root {
+    --bg: #f6f4f0; --paper: #fffdfa; --surface-2: #faf8f4;
+    --line: #e7e2d9; --line-strong: #d8d2c6;
+    --ink: #221f1b; --ink-2: #4a443c; --muted: #8e867b;
+    --accent: #2f6b5f; --accent-soft: rgba(47, 107, 95, .1);
+    --danger: #b4462f; --warn: #a97a17;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 14px/1.6 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    padding: 28px 32px 40px;
+  }
+  h1 { font-size: 19px; margin: 0 0 4px; letter-spacing: .01em; }
+  .sub { color: var(--muted); font-size: 12.5px; margin-bottom: 22px; }
+  .cols { display: flex; gap: 26px; align-items: flex-start; flex-wrap: wrap; }
+  .panel {
+    width: 320px; background: var(--paper); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px 12px 12px; box-shadow: 0 8px 26px rgba(30, 25, 18, .06);
+  }
+  .cap { font-size: 12px; color: var(--muted); margin: 0 2px 10px; letter-spacing: .02em; }
+  .cap b { color: var(--ink); font-weight: 600; }
+  .tabs { display: flex; gap: 2px; margin-bottom: 10px; }
+  .tabs button {
+    flex: 1; border: 0; background: none; font: inherit; font-size: 12.5px;
+    color: var(--muted); padding: 6px 0; border-radius: 7px; cursor: pointer;
+  }
+  .tabs button.on { color: var(--ink); background: var(--surface-2); font-weight: 600; }
+
+  /* ───────── 现状：普通列表 ───────── */
+  .old .item {
+    display: flex; gap: 8px; padding: 8px 9px; border-radius: 8px; margin-bottom: 3px;
+    border: 1px solid transparent;
+  }
+  .old .item.on { background: var(--surface-2); border-color: var(--accent); }
+  .old .no {
+    width: 20px; height: 20px; border-radius: 5px; background: var(--surface-2);
+    border: 1px solid var(--line); font-size: 11px; color: var(--muted);
+    display: grid; place-items: center; flex: none; margin-top: 2px;
+  }
+  .old .t { font-size: 13px; }
+  .old .d { font-size: 11.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ───────── 方案 A：档案卡（选中抽出） ───────── */
+  .a .item {
+    position: relative; display: block; padding: 9px 11px 9px 12px; margin: 0 0 6px 8px;
+    border: 1px solid var(--line); border-radius: 9px; background: var(--paper);
+    opacity: .68; transition: all .16s ease;
+  }
+  .a .item::before {  /* 档案夹的"标签舌" */
+    content: ""; position: absolute; left: -8px; top: 12px; width: 8px; height: 22px;
+    background: var(--line); border-radius: 3px 0 0 3px;
+  }
+  .a .item.done::before { background: #cfd8cf; }
+  .a .item:hover { opacity: .95; }
+  .a .item.on {
+    opacity: 1; margin-left: 0; margin-right: -2px; padding: 11px 13px;
+    border-color: var(--accent); box-shadow: 0 10px 24px rgba(30, 25, 18, .1), 0 0 0 3px var(--accent-soft);
+    transform: translateX(2px);
+  }
+  .a .item.on::before { left: 0; width: 3px; height: auto; top: 8px; bottom: 8px; border-radius: 3px; background: var(--accent); }
+  .a .row { display: flex; align-items: baseline; gap: 7px; }
+  .a .idx { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+  .a .title { font-size: 13.5px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .a .chip { font-size: 10.5px; padding: 1px 6px; border-radius: 20px; flex: none; }
+  .chip.done { background: #e8efe8; color: #4a6b4a; }
+  .chip.draft { background: #fdf1dc; color: var(--warn); }
+  .chip.planned { background: var(--surface-2); color: var(--muted); }
+  .a .brief { font-size: 11.5px; color: var(--muted); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .a .detail { display: none; margin-top: 9px; padding-top: 9px; border-top: 1px dashed var(--line); }
+  .a .item.on .detail { display: block; }
+  .a .item.on .brief { display: none; }
+  .a .kv { display: flex; gap: 8px; font-size: 12px; margin-bottom: 3px; }
+  .a .kv b { flex: none; width: 30px; color: var(--muted); font-weight: 400; }
+  .a .kv span { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .a .acts { display: flex; gap: 6px; margin-top: 9px; }
+  .a .acts button {
+    font: inherit; font-size: 11.5px; padding: 4px 9px; border-radius: 6px;
+    border: 1px solid var(--line-strong); background: var(--paper); color: var(--ink-2); cursor: pointer;
+  }
+  .a .acts button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .a .grp { font-size: 11px; color: var(--muted); margin: 10px 0 6px 2px; letter-spacing: .04em; }
+
+  /* ───────── 方案 B：色卡滚轮式（只露选中附近的卡） ───────── */
+  .b .wheel { position: relative; height: 268px; overflow: hidden;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 22%, #000 78%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 22%, #000 78%, transparent 100%); }
+  .b .card {
+    position: absolute; left: 50%; top: 50%; width: 200px; height: 58px;
+    background: var(--paper); border: 1px solid var(--line); border-radius: 9px;
+    padding: 8px 10px; transition: all .22s ease;
+  }
+  .b .card .title { font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .b .card .brief { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .b .card.on { border-color: var(--accent); box-shadow: 0 12px 26px rgba(30, 25, 18, .14), 0 0 0 3px var(--accent-soft); }
+  .b .hint { position: absolute; left: 0; right: 0; bottom: 4px; text-align: center; font-size: 10.5px; color: var(--muted); }
+  .note { font-size: 11.5px; color: var(--muted); margin-top: 10px; padding-top: 9px; border-top: 1px dashed var(--line); }
+  .note b { color: var(--ink-2); }
+  .bad { color: var(--danger); }
+</style>
+</head>
+<body>
+<h1>左侧栏改造 · 两种方案对照</h1>
+<div class="sub">同一份数据（示例项目《补字人》第 3 章选中）。左边是现在的样子，中间是推荐方案 A，右边是方案 B（滚轮式）。</div>
+
+<div class="cols">
+  <!-- 现状 -->
+  <div class="panel old">
+    <div class="cap"><b>现状</b> · 平铺列表</div>
+    <div class="tabs"><button class="on">章节卡</button><button>角色</button><button>世界观</button><button>伏笔</button></div>
+    <div class="item done"><div class="no">1</div><div><div class="t">第一章 缺笔的字</div><div class="d">沈砚接手一页缺笔手稿，发现少了…</div></div></div>
+    <div class="item done"><div class="no">2</div><div><div class="t">第二章 第二个字</div><div class="d">补完第一个字，第二天老周死了</div></div></div>
+    <div class="item on"><div class="no">3</div><div><div class="t">第三章 小沈</div><div class="d">沈砚听见死人的声音，开始查账本</div></div></div>
+    <div class="item"><div class="no">4</div><div><div class="t">第四章 账本第一页</div><div class="d">账本记着十年里每一个死者的名…</div></div></div>
+    <div class="item"><div class="no">5</div><div><div class="t">第五章 城西</div><div class="d">去城西找账本主人</div></div></div>
+    <div class="item"><div class="no">6</div><div><div class="t">第六章 停笔</div><div class="d">还原师父停笔的那一夜</div></div></div>
+    <div class="note">问题：10 张卡长得一样，<b>看不出哪张是"当前在写的"</b>，也看不出每章进度；章节一多就变成一片同色文字。</div>
+  </div>
+
+  <!-- 方案 A -->
+  <div class="panel a">
+    <div class="cap"><b>方案 A（推荐）</b> · 档案卡：选中的抽出来</div>
+    <div class="tabs"><button class="on">章节卡</button><button>角色</button><button>世界观</button><button>伏笔</button></div>
+
+    <div class="item done"><div class="row"><span class="idx">01</span><span class="title">缺笔的字</span><span class="chip done">已完成</span></div><div class="brief">沈砚接手一页缺笔手稿</div></div>
+    <div class="item done"><div class="row"><span class="idx">02</span><span class="title">第二个字</span><span class="chip done">已完成</span></div><div class="brief">补完第一个字，老周死了</div></div>
+
+    <div class="item on draft">
+      <div class="row"><span class="idx">03</span><span class="title">小沈</span><span class="chip draft">草稿 146 字</span></div>
+      <div class="detail">
+        <div class="kv"><b>目标</b><span>听见死人的声音，开始查账本</span></div>
+        <div class="kv"><b>冲突</b><span>他不能回头，但必须确认</span></div>
+        <div class="kv"><b>转折</b><span>老周从来不叫他「小沈」</span></div>
+        <div class="kv"><b>伏笔</b><span>埋：缺笔的字　收：账本的主人</span></div>
+        <div class="acts"><button class="primary">继续写</button><button>编辑卡</button><button>历史 3 版</button></div>
+      </div>
+    </div>
+
+    <div class="item"><div class="row"><span class="idx">04</span><span class="title">账本第一页</span><span class="chip planned">待写</span></div><div class="brief">账本记着十年里每个死者的名字</div></div>
+    <div class="item"><div class="row"><span class="idx">05</span><span class="title">城西</span><span class="chip planned">待写</span></div><div class="brief">去城西找账本主人</div></div>
+    <div class="item"><div class="row"><span class="idx">06</span><span class="title">停笔</span><span class="chip planned">待写</span></div><div class="brief">还原师父停笔的那一夜</div></div>
+    <div class="grp">─ 未展开 4 章 ─</div>
+
+    <div class="note">只把<b>选中的那张</b>抽出来（左移 2px、加宽、主色描边 + 外光），其余压到 0.68 透明度、只剩「序号 + 标题 + 状态 + 一行摘要」。卡片左侧加了档案夹的"标签舌"，看起来像一叠夹在夹子里的卡，而不是一段列表。<b>不按距离渐隐</b>——那样中间清楚、两头糊，反而难扫读。</div>
+  </div>
+
+  <!-- 方案 B -->
+  <div class="panel b">
+    <div class="cap"><b>方案 B（备选）</b> · 滚轮：只露中间几张</div>
+    <div class="tabs"><button class="on">章节卡</button><button>角色</button><button>世界观</button><button>伏笔</button></div>
+    <div class="wheel" id="wheel"></div>
+    <div class="note"><b>优点</b>：视觉最"有设计感"，和外观里的色卡滚轮同语言。<br>
+      <span class="bad">代价</span>：① 10 张卡只能同时看到 3–4 张，跳章要转轮子；② 章节是有序列表、需要扫读和拖拽排序，滚轮把顺序感藏起来了；③ 长按拖动、键盘上下、批量操作都要另做一套。<br>
+      <b>我的判断</b>：滚轮适合"选一个"（20 张以内的资料卡、主题色），不适合"管理一串有顺序的东西"。建议只把滚轮用在<b>角色卡</b>的快速翻页上，章节卡用方案 A。</div>
+  </div>
+</div>
+
+<script>
+  /* 方案 B 的滚轮：把 6 张卡摆在弧上，只露上半圈，选中的提起来 */
+  (function () {
+    var items = [
+      ['01 缺笔的字', '已完成'], ['02 第二个字', '已完成'], ['03 小沈', '草稿 146 字'],
+      ['04 账本第一页', '待写'], ['05 城西', '待写'], ['06 停笔', '待写']
+    ];
+    var sel = 2, N = items.length;
+    var root = document.getElementById('wheel');
+    items.forEach(function (it, i) {
+      var d = i - sel;
+      if (d > N / 2) d -= N;
+      if (d < -N / 2) d += N;
+      var el = document.createElement('div');
+      el.className = 'card' + (d === 0 ? ' on' : '');
+      el.innerHTML = '<div class="title">' + it[0] + '</div><div class="brief">' + it[1] + '</div>';
+      el.style.transform = 'translate(-50%,-50%) translateY(' + (d * 72) + 'px) scale(' + (d === 0 ? 1 : Math.max(.82, 1 - Math.abs(d) * .06)) + ')';
+      el.style.opacity = d === 0 ? 1 : Math.max(.12, 1 - Math.abs(d) * .3);
+      el.style.zIndex = 10 - Math.abs(d);
+      root.appendChild(el);
+    });
+    var hint = document.createElement('div');
+    hint.className = 'hint';
+    hint.textContent = '滚轮 / 拖动切换，只露中间 3 张';
+    root.appendChild(hint);
+  })();
+</script>
+</body>
+</html>

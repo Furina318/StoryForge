@@ -1,0 +1,77 @@
+{
+  "name": "storyforge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "StoryForge 原型：本地优先、BYOK 的短篇创作工作台",
+  "author": "StoryForge",
+  "main": "apps/desktop/main.js",
+  "scripts": {
+    "start": "node apps/desktop/launch.js",
+    "start:debug": "node apps/desktop/launch.js --enable-logging",
+    "start:raw": "electron .",
+    "start:web": "node -e \"console.log('直接用浏览器打开 apps/ui/index.html 即可，无需构建')\"",
+    "rebuild:native": "electron-rebuild -f -w better-sqlite3",
+    "test": "node test/rules/run.js && node test/review/run.js && node test/arc/run.js && node test/blocks/run.js && node test/extract/run.js && node test/library/run.js",
+    "test:library": "node test/library/run.js",
+    "test:library:verbose": "node test/library/run.js --verbose",
+    "test:rules": "node test/rules/run.js",
+    "test:rules:verbose": "node test/rules/run.js --verbose",
+    "test:extract": "node test/extract/run.js",
+    "test:extract:verbose": "node test/extract/run.js --verbose",
+    "test:blocks": "node test/blocks/run.js",
+    "test:desktop": "node apps/desktop/launch.js --selftest --selftest-ui --selftest-llm --user-data-dir=dist/tmp-selftest",
+    "icon": "python assets/make-icon.py",
+    "icon:from": "node scripts/icon-from-png.js",
+    "dist": "node scripts/build-win.js",
+    "dist:raw": "electron-builder --win nsis",
+    "dist:portable": "electron-builder --win portable",
+    "test:arc": "node test/arc/run.js",
+    "test:review": "node test/review/run.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "iconv-lite": "^0.7.3",
+    "pdfjs-dist": "^3.11.174"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^3.6.0",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.storyforge.desktop",
+    "productName": "StoryForge",
+    "copyright": "StoryForge 原型",
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "asar": false,
+    "files": [
+      "apps/**/*",
+      "packages/**/*",
+      "assets/icon.png",
+      "package.json",
+      "!**/*.log",
+      "!**/tmp-*.js"
+    ],
+    "win": {
+      "icon": "assets/icon.ico",
+      "signAndEditExecutable": false,
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "StoryForge-${version}-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "StoryForge",
+      "artifactName": "StoryForge-${version}-Setup.${ext}"
+    },
+    "npmRebuild": false
+  }
+}

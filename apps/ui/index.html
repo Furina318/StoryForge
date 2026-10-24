@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>StoryForge</title>
+  <!-- 首屏底色写死在 head 里：外链 CSS 到达前浏览器可能先画一帧默认底色，
+       深色模式系统上就是"黑一下"。这一段把它压成暖纸色，代价是 60 字节。 -->
+  <style>
+    html, body { background: #f6f4f0; color: #221f1b; margin: 0; }
+    #bootErr { position: fixed; left: 0; right: 0; bottom: 0; z-index: 99; background: #fbeeeb; color: #b4462f;
+      font: 12px/1.6 ui-monospace, Consolas, monospace; padding: 8px 12px; white-space: pre-wrap; display: none; }
+  </style>
+  <script>
+    /* file:// 下浏览器会把脚本异常压成 "Script error."，这里自己接住，否则只能靠猜 */
+    window.addEventListener('error', function (e) {
+      var box = document.getElementById('bootErr');
+      if (!box) return;
+      box.style.display = 'block';
+      box.textContent = '脚本错误：' + (e.message || '') + '\n' + (e.filename || '') + ':' + (e.lineno || 0);
+    });
+  </script>
+  <link rel="stylesheet" href="styles.css?v=140">
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand"><i class="mark"></i>StoryForge</div>
+    <button class="proj-btn" id="btnProjects" title="切换 / 新建项目">
+      <span class="ptxt">
+        <em id="projName">载入中…</em>
+        <span class="meta" id="projMeta"></span>
+      </span>
+      <i class="caret" aria-hidden="true"></i>
+    </button>
+    <div class="spacer"></div>
+    <div class="wc" id="totalWc"></div>
+    <button class="btn ghost" id="btnLibrary" title="书库：导入进来读的书">书库</button>
+    <button class="btn ghost" id="btnStyle">文风</button>
+    <button class="btn ghost theme-dot" id="btnTheme" title="背景色 / 玻璃态"><i></i>外观</button>
+    <button class="btn ghost" id="btnExport">导出</button>
+    <button class="btn ghost" id="btnSettings">设置</button>
+  </header>
+
+  <main class="workspace">
+    <aside class="pane pane-left">
+      <div class="tabs-row">
+        <nav class="tabs" id="tabs">
+          <button data-tab="cards" class="on">章节卡</button>
+          <button data-tab="chars">角色</button>
+          <button data-tab="world">世界观</button>
+          <button data-tab="fs">伏笔</button>
+        </nav>
+        <button class="view-toggle" id="btnView" title="切换左栏视图：档案卡 / 滚轮">▤</button>
+        <button class="tab-add" id="btnAdd" title="新建">＋</button>
+      </div>
+      <div class="pane-body" id="leftBody"></div>
+    </aside>
+
+    <section class="pane pane-center">
+      <div class="chapter-head" id="chapterHead"></div>
+      <div class="editor" id="editor"><div class="editor-inner" id="editorInner"></div></div>
+      <footer class="status-bar" id="statusBar"></footer>
+    </section>
+
+    <aside class="pane pane-right" id="rightPane"></aside>
+  </main>
+</div>
+
+<!-- 阅读视图：全屏层，不是弹窗（弹窗有 80vh 上限且点空白就关） -->
+<div class="reader hidden" id="reader"></div>
+
+<!-- 一个项目都没有时铺满工作区的欢迎页 -->
+<div class="empty-home" id="emptyHome" hidden></div>
+
+<div class="modal" id="modal"><div class="modal-card" id="modalCard"></div></div>
+<div class="toast" id="toast"></div>
+<div id="bootErr"></div>
+<input type="file" id="fileImport" accept=".sfpkg,application/json" hidden>
+
+<!-- file:// 下浏览器按 URL 缓存脚本，改完 JS 必须带版本串，否则看到的还是旧代码 -->
+<script src="../../packages/blocks/versioning.js?v=140"></script>
+  <script src="../../packages/library/epubwrite.js?v=140"></script>
+<script src="../../packages/review/index.js?v=140"></script>
+  <script src="../../packages/extract/index.js?v=140"></script>
+<script src="content.js?v=140"></script>
+<script src="data.js?v=140"></script>
+<script src="store.js?v=140"></script>
+<script src="../../packages/rules/index.js?v=140"></script>
+<script src="llm.js?v=140"></script>
+<script src="theme.js?v=140"></script>
+<script src="app.js?v=140"></script>
+<script src="vendor/pdf.min.js?v=140"></script>
+<script src="library.js?v=140"></script>
+<script src="reader.js?v=140"></script>
+</body>
+</html>
